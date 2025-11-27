@@ -41,149 +41,147 @@ export default function ResultCard({ data }: { data: any }) {
     };
 
     const completionPercentage = (checkedTasks.size / data.tasks.length) * 100;
+    
+    const getComplexityColor = (complexity: number) => {
+        if (complexity <= 3) return "text-green-600 dark:text-green-400";
+        if (complexity <= 6) return "text-amber-600 dark:text-amber-400";
+        return "text-red-600 dark:text-red-400";
+    };
+    
+    const getComplexityBg = (complexity: number) => {
+        if (complexity <= 3) return "bg-green-500";
+        if (complexity <= 6) return "bg-amber-500";
+        return "bg-red-500";
+    };
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.5, type: "spring" }}
-            className="mt-8"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 shadow-xl p-6"
         >
-            <Card className="glass-strong border-white/20 overflow-hidden">
-                <CardHeader className="border-b border-white/10 pb-6">
-                    <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                            <CardTitle className="text-2xl font-bold text-white mb-2">
-                                {data.text}
-                            </CardTitle>
-                            <div className="flex items-center gap-4 flex-wrap">
-                                <div className="flex items-center gap-2">
-                                    <TrendingUp className="w-4 h-4 text-purple-400" />
-                                    <span className="text-sm text-gray-300">
-                                        Complexity: <span className="font-semibold text-purple-400">{data.complexity}/10</span>
+            {/* Goal Title */}
+            <div className="mb-5 pb-5 border-b border-slate-200 dark:border-slate-700">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">{data.text}</h3>
+                <div className="flex items-center gap-4 flex-wrap">
+                    <div className="flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                            Complexity: <span className={`font-bold ${getComplexityColor(data.complexity)}`}>{data.complexity}/10</span>
+                        </span>
+                    </div>
+                    <div className="flex-1 min-w-[150px] max-w-[200px]">
+                        <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${(data.complexity / 10) * 100}%` }}
+                                transition={{ duration: 0.6, delay: 0.1 }}
+                                className={`h-full ${getComplexityBg(data.complexity)}`}
+                            />
+                        </div>
+                    </div>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={copyToClipboard}
+                            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                            title="Copy"
+                        >
+                            <Copy className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                        </button>
+                        <button
+                            onClick={shareGoal}
+                            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                            title="Share"
+                        >
+                            <Share2 className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Progress Section */}
+            {checkedTasks.size > 0 && (
+                <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="mb-5 p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20 border border-indigo-200 dark:border-indigo-800"
+                >
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Progress</span>
+                        <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                            {checkedTasks.size}/{data.tasks.length} completed
+                        </span>
+                    </div>
+                    <div className="h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${completionPercentage}%` }}
+                            className="h-full bg-gradient-to-r from-indigo-500 to-purple-600"
+                            transition={{ duration: 0.4 }}
+                        />
+                    </div>
+                </motion.div>
+            )}
+
+            {/* Tasks List */}
+            <div className="space-y-3">
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-4">
+                    Actionable Steps
+                </h4>
+                {data.tasks.map((task: string, i: number) => {
+                    const isChecked = checkedTasks.has(i);
+                    return (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.2, delay: i * 0.05 }}
+                        >
+                            <button
+                                onClick={() => toggleTask(i)}
+                                className="w-full flex items-start gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all text-left group"
+                            >
+                                <div className="flex-shrink-0 mt-0.5">
+                                    {isChecked ? (
+                                        <CheckCircle2 className="w-5 h-5 text-green-500 dark:text-green-400" />
+                                    ) : (
+                                        <Circle className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors" />
+                                    )}
+                                </div>
+                                <div className="flex-1">
+                                    <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mr-2">
+                                        Step {i + 1}
                                     </span>
+                                    <p className={`text-[15px] leading-relaxed mt-1 transition-all ${
+                                        isChecked
+                                            ? 'text-slate-400 dark:text-slate-500 line-through'
+                                            : 'text-slate-700 dark:text-slate-300'
+                                    }`}>
+                                        {task}
+                                    </p>
                                 </div>
-                                <div className="flex-1 max-w-xs">
-                                    <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${(data.complexity / 10) * 100}%` }}
-                                            transition={{ duration: 1, delay: 0.3 }}
-                                            className="h-full bg-gradient-to-r from-green-400 via-yellow-400 to-red-400"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex gap-2">
-                            <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={copyToClipboard}
-                                className="p-2 rounded-lg glass hover:bg-white/10 transition-smooth"
-                                title="Copy to clipboard"
-                            >
-                                <Copy className="w-4 h-4 text-gray-300" />
-                            </motion.button>
-                            <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={shareGoal}
-                                className="p-2 rounded-lg glass hover:bg-white/10 transition-smooth"
-                                title="Share"
-                            >
-                                <Share2 className="w-4 h-4 text-gray-300" />
-                            </motion.button>
-                        </div>
-                    </div>
-                </CardHeader>
-
-                <CardContent className="pt-6">
-                    {/* Progress Section */}
-                    {checkedTasks.size > 0 && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            className="mb-6 p-4 rounded-lg glass"
-                        >
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-gray-300">Progress</span>
-                                <span className="text-sm font-semibold text-purple-400">
-                                    {checkedTasks.size}/{data.tasks.length} completed
-                                </span>
-                            </div>
-                            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                                <motion.div
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${completionPercentage}%` }}
-                                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
-                                    transition={{ duration: 0.5 }}
-                                />
-                            </div>
+                            </button>
                         </motion.div>
-                    )}
+                    );
+                })}
+            </div>
 
-                    {/* Tasks List */}
-                    <div className="space-y-3">
-                        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-4">
-                            Actionable Steps
-                        </h3>
-                        {data.tasks.map((task: string, i: number) => {
-                            const isChecked = checkedTasks.has(i);
-                            return (
-                                <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ duration: 0.3, delay: i * 0.1 }}
-                                    className="group"
-                                >
-                                    <motion.button
-                                        whileHover={{ scale: 1.01 }}
-                                        whileTap={{ scale: 0.99 }}
-                                        onClick={() => toggleTask(i)}
-                                        className="w-full flex items-start gap-3 p-4 rounded-xl glass hover:bg-white/10 transition-smooth text-left"
-                                    >
-                                        <div className="flex-shrink-0 mt-0.5">
-                                            {isChecked ? (
-                                                <CheckCircle2 className="w-5 h-5 text-green-400" />
-                                            ) : (
-                                                <Circle className="w-5 h-5 text-gray-500 group-hover:text-purple-400 transition-colors" />
-                                            )}
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex items-baseline gap-2">
-                                                <span className="text-xs font-semibold text-purple-400">
-                                                    Step {i + 1}
-                                                </span>
-                                            </div>
-                                            <p className={`text-sm mt-1 transition-all ${isChecked
-                                                    ? 'text-gray-500 line-through'
-                                                    : 'text-gray-200'
-                                                }`}>
-                                                {task}
-                                            </p>
-                                        </div>
-                                    </motion.button>
-                                </motion.div>
-                            );
-                        })}
+            {/* Completion Message */}
+            {checkedTasks.size === data.tasks.length && (
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mt-6 p-5 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800"
+                >
+                    <div className="flex items-center gap-3">
+                        <CheckCircle2 className="w-6 h-6 text-green-600 dark:text-green-400 flex-shrink-0" />
+                        <p className="text-base text-green-800 dark:text-green-300 font-bold">
+                            🎉 Congratulations! You've completed all steps!
+                        </p>
                     </div>
-
-                    {/* Completion Message */}
-                    {checkedTasks.size === data.tasks.length && (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="mt-6 p-4 rounded-xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30"
-                        >
-                            <p className="text-center text-white font-semibold">
-                                🎉 Congratulations! You've completed all steps!
-                            </p>
-                        </motion.div>
-                    )}
-                </CardContent>
-            </Card>
+                </motion.div>
+            )}
         </motion.div>
     );
 }

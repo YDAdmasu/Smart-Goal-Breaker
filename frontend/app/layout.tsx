@@ -22,28 +22,37 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" className="dark">
-            <body>
+            <body className="bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
                 {children}
                 <Toaster
                     position="top-right"
                     toastOptions={{
                         duration: 4000,
                         style: {
-                            background: 'rgba(255, 255, 255, 0.1)',
-                            backdropFilter: 'blur(10px)',
+                            background: 'rgb(30 41 59)',
                             color: '#fff',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            border: '1px solid rgb(51 65 85)',
+                            borderRadius: '0.5rem',
+                            padding: '12px 16px',
                         },
                         success: {
                             iconTheme: {
-                                primary: '#a78bfa',
+                                primary: '#10b981',
                                 secondary: '#fff',
+                            },
+                            style: {
+                                background: 'rgb(30 41 59)',
+                                border: '1px solid rgb(51 65 85)',
                             },
                         },
                         error: {
                             iconTheme: {
                                 primary: '#ef4444',
                                 secondary: '#fff',
+                            },
+                            style: {
+                                background: 'rgb(30 41 59)',
+                                border: '1px solid rgb(51 65 85)',
                             },
                         },
                     }}
